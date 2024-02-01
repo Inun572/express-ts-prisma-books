@@ -11,40 +11,61 @@ datasource db {
 }
 
 model Author {
-  id    Int    @id @default(autoincrement())
-  name  String
-  books Book[]
+  id         Int       @id @default(autoincrement())
+  name       String
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+  books      Book[]
 
   @@map("authors")
 }
 
 model Publisher {
-  id    Int    @id @default(autoincrement())
-  name  String
-  books Book[]
+  id         Int       @id @default(autoincrement())
+  name       String
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+  books      Book[]
 
   @@map("publishers")
 }
 
 model Category {
-  id    Int    @id @default(autoincrement())
-  name  String
-  books Book[]
+  id         Int            @id @default(autoincrement())
+  name       String
+  created_at DateTime       @default(now())
+  updated_at DateTime?      @updatedAt
+  books      BookCategory[]
 
   @@map("categories")
 }
 
 model Book {
-  id           Int       @id @default(autoincrement())
+  id           Int            @id @default(autoincrement())
   title        String
-  isbn         String
+  isbn         String         @unique
   synopsis     String?
   author_id    Int
   publisher_id Int
   category_id  Int
-  author       Author    @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_author_id_fkey")
-  publisher    Publisher @relation(fields: [publisher_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_publisher_id_fkey")
-  category     Category  @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_category_id_fkey")
+  created_at   DateTime       @default(now())
+  updated_at   DateTime?      @updatedAt
+  author       Author         @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_author_id_fkey")
+  publisher    Publisher      @relation(fields: [publisher_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_publisher_id_fkey")
+  categories   BookCategory[]
 
+  @@index([author_id, publisher_id])
   @@map("books")
+}
+
+model BookCategory {
+  book_id     Int
+  category_id Int
+  created_at  DateTime  @default(now())
+  updated_at  DateTime? @updatedAt
+  book        Book      @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "book_category_book_id_fkey")
+  category    Category  @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "book_category_category_id_fkey")
+
+  @@id([book_id, category_id])
+  @@map("book_category")
 }
